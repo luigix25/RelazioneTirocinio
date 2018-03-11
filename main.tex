@@ -86,9 +86,57 @@ double genererateNumber(){	// numeri fra -30 e 30
 	return (tmp*60) -30;
 }
 
+\end{lstlisting}
+\newpage
+\subsection{Tempi}
+Lo scopo di questo test è incentrato sul capire se, oltre ad esservi dei vantaggi a livello di precisione, vi sono dei vantaggi a livello di prestazioni nell'eseguire moltiplicazioni.\\
+I Posit utilizzati sono del tipo [32-3]. 
+
+
+\subsubsection{Svolgimento}
+Per poter effettuare dei test che non avvantaggiassero i Float, sfruttando supporto hardware, è stata sfruttata la libreria SoftFloat\cite{softfloat} la quale implementa i Float interamente via software.\\
+Lo svolgimento del test è simile al precedente, vengono creati 6 array di dimensione nell'ordine dei milioni \begin{itemize}
+	\item 2 di Float
+	\item 2 di SoftFloat a 32 bit
+	\item 2 di Posit[32,3]
+\end{itemize}
+I primi due vengono popolati con numeri generati in modo pseudo-casuale, mentre i rimanenti 4 vengono riempiti convertendo, nei rispettivi formati, i numeri ottenuti precedentemente. Per poter ottenere i tempi è stata sfruttata la funzione clock\_gettime(), la quale restituisce il timestamp di sistema. Salvando il timestamp ad inizio e fine elaborazione, durante il quale vengono eseguite le moltiplicazioni fra i due array, si riescono ad ottenere per differenza i tempi di lavoro per ciascun tipo di numero.
+
+\subsubsection{Conclusioni}
+Come potevamo aspettarci i Float con supporto hardware, sono stati $\approx11$ volte più veloci dei SoftFloat o dei Posit. Per quanto riguarda i Posit invece, sono stati più lenti di $\approx2$ volte rispetto ai SoftFloat. Anche questo risultato era prevedibile, in quanto i Posit non sono altro che una generalizzazione dei Float, avendo aggiunto dei campi a lunghezza variabile. 
+
+\subsubsection{Codice}
+\begin{lstlisting}[language=C++]
+//Funzione per calcolo tempi Posit
+double doTestPosit(unsigned int *X,unsigned int *Y,unsigned long n)
+{
+
+	auto p1 = Posit(32, 3);
+	auto p2 = Posit(32, 3);    
+	
+	timespec start, stop;
+	
+	clock_gettime( CLOCK_REALTIME, &start);
+	
+	for(unsigned long i=0;i<n;i++){
+		p1.setBits(X[i]);
+		p2.setBits(Y[i]);
+	
+		p1.mul(p2);
+	}
+	
+	clock_gettime( CLOCK_REALTIME, &stop);
+	
+	double res = BILLION*( stop.tv_sec - start.tv_sec ) + 
+	( stop.tv_nsec - start.tv_nsec );
+	
+	return res;
+
+}
+
 
 \end{lstlisting}
-
+\newpage
 
 \section{Codice?}
 \subsection{Test Sigmoide}
