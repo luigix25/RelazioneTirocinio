@@ -59,7 +59,7 @@
 %	\subsection{Cippi}
 %	\ldots{} ora e' in distilleria.
 \newpage
-\section {Test}
+\section {Test su Moltiplicazione}
 \subsection{Accuratezza}
 
 Questo test vuole dimostrare che a parità di bit utilizzati, 32 in questo caso, i Posit risultano essere più precisi nel rappresentare i risultati di prodotti, rispetto ad un Float in precisione singola.\\
@@ -80,10 +80,10 @@ I risultati risultano essere in linea con le aspettative, in quanto una maggiore
 \subsubsection{Codice}
 \begin{lstlisting}[language=C++]
 //Funzione per Numeri Random
-double genererateNumber(){	// numeri fra -30 e 30
+double genererateNumber(){
 	double tmp = (double)rand()/(double)RAND_MAX;
 	
-	return (tmp*60) -30;
+	return (tmp*2000);
 }
 
 \end{lstlisting}
@@ -137,19 +137,62 @@ double doTestPosit(unsigned int *X,unsigned int *Y,unsigned long n)
 
 \end{lstlisting}
 \newpage
+\section{Test su Sigmoide}
+\subsection{Introduzione}
+Una caratteristica dei Posit con 0 bit di esponente, come osservato da Isaac Yonemoto, è che risulta molto facile e conveniente a livello computazionale, calcolare la funzione sigmoide, infatti bastano dei semplici shift e not. Essa trova largo impiego nell'ambito delle reti neurali e machine learning.
+\\Per poter eseguire i seguenti test, è stato necessario implementare una funzione di conversione da Posit[32-0] a Float, in quanto la libreria ne risulta essere sprovvista.
+
+\subsection{Valori}
+Il primo test che sono andato ad eseguire è stato di tipo numerico, ossia data la funzione sigmoide  $ f(x) = \frac {1}{1 + e^{-x}} $, ne ho confrontato i risultati con quelli restituiti dalla sigmoide ottenuta mediante manipolazione dei bit.
+
+\subsubsection{Svolgimento}
+
+Per questo tipo di test ho generato un numero di Float, nell'ordine delle migliaia, in modo pseudo-casuale nel range -30 e 30, e ne ho calcolato la sigmoide sfruttando prima la funzione con l'esponenziale, e successivamente, dopo aver convertito il numero in Posit, l'altra.
+Infine ho plottato tutti i risultati su MatLab ed ho ottenuto il seguente grafico:
+
+\begin{figure}[h]
+	\includegraphics[scale=0.15]{sigmoide_2}
+	\centering
+	\caption{"Sigmoide"}
+\end{figure}
+
+\subsubsection{Conclusioni}
+Come si può evincere dalla figura, il grafico ottenuto con i  Posit sembra essere una spezzata che segue l'andamento della sigmoide con i Float, inoltre i due grafici si vanno a sovrapporre nell'origine. In generale comunque possiamo affermare che effettivamente questo tipo di manipolazione sui bit, ha fornito una approssimazione della sigmoide.
+
+\subsubsection{Codice}
+
+Da Mettere:
+conversione sub
+sigmoide nei 2 casi
+
+\subsection{Tempi}
+
+Una volta dimostrato che possiamo approssimare la sigmoide, il passo successivo è quello di provare che effettivamente vi sia risparmio tangibile nell'eseguire i calcoli. \\
+Questo test, suddiviso in più parti, effettua diversi confronti, sui tempi di elaborazione, fra sigmoide su Posit e sigmoide ottenuta in vari modi sui Float.
+
+\subsubsection{Parte 1}
+
+Il primo confronto eseguito è stato con la funzione sigmoide esponenziale  $ f(x) = \frac {1}{1 + e^{-x}} $, la stessa utilizzata nel test numerico.\\
+Esso consiste nel generare diversi milioni di Float pseudo-casuali e di scriverli su file sia come Float che come Posit sotto forma di bit, il tutto per evitare di falsare il test a sfavore di questi ultimi, in quanto nel tempo di elaborazione vi sarebbe anche il tempo di conversione. \\
+Una volta acquisiti i dati da file, per ciascun tipo, impiego la funzione clock\_gettime(), la quale viene richiamata prima e dopo aver finito di calcolare la sigmoide su tutti i dati.
+
+
+
+
+
 
 \section{Codice?}
-\subsection{Test Sigmoide}
+
 \begin{lstlisting}[language=C++]
 	//Prova.cpp
 	printf("Ciao");
 	
 	
 \end{lstlisting}
-	
-
-
 \newpage
+
+
+
 
 	\nocite{articolo1}
 	
