@@ -161,10 +161,51 @@ Come si può evincere dalla figura, il grafico ottenuto con i  Posit sembra esse
 
 \subsubsection{Codice}
 
-Da Mettere:
-conversione sub
-sigmoide nei 2 casi
+\begin{lstlisting}[language=C++]
+//Sigmoide con Float
+float sigmoid(float &x){
+	return 1/(exp(-x)+1);
+}
 
+//Sigmoide con Posit
+unsigned int sigmoid(unsigned int bits){
+	bits = bits ^ 0x80000000;
+	bits = bits >> 2;
+	return bits;
+}
+
+
+//Conversione da Posit[32-0] a Float
+float Posit::subconv(){
+	union {
+		float f;
+		uint32_t bits;
+	};
+	bits=0;
+	
+	if((mBits & 0xFFFFFFFF) == 0)
+	return 0.0f;
+	signed char c = (signed char)(regime());
+	c+= 127;
+	unsigned int esponente = (unsigned int)(c);	
+	
+	esponente = esponente<<23;
+	bits = bits | esponente;
+	unpacked_t aup = unpack_posit(mBits, mNbits, mEs);
+	unsigned int fr_ = aup.frac;
+	
+	fr_ = fr_>>9;
+	bits = bits | fr_;
+	int segno = aup.neg;
+	if(segno == 0)
+		bits &= 0x7FFFFFFF;
+	else
+		bits |= 0x80000000;
+	
+	return f;
+}
+\end{lstlisting}
+\newpage
 \subsection{Tempi}
 
 Una volta dimostrato che possiamo approssimare la sigmoide, il passo successivo è quello di provare che effettivamente vi sia risparmio tangibile nell'eseguire i calcoli. \\
@@ -173,8 +214,25 @@ Questo test, suddiviso in più parti, effettua diversi confronti, sui tempi di e
 \subsubsection{Parte 1}
 
 Il primo confronto eseguito è stato con la funzione sigmoide esponenziale  $ f(x) = \frac {1}{1 + e^{-x}} $, la stessa utilizzata nel test numerico.\\
-Esso consiste nel generare diversi milioni di Float pseudo-casuali e di scriverli su file sia come Float che come Posit sotto forma di bit, il tutto per evitare di falsare il test a sfavore di questi ultimi, in quanto nel tempo di elaborazione vi sarebbe anche il tempo di conversione. \\
-Una volta acquisiti i dati da file, per ciascun tipo, impiego la funzione clock\_gettime(), la quale viene richiamata prima e dopo aver finito di calcolare la sigmoide su tutti i dati.
+Esso consiste nel generare un milione di Float pseudo-casual,i e di scriverli su file sia come Float che come Posit sotto forma di bit, il tutto per evitare di falsare il test a sfavore di questi ultimi, in quanto nel tempo di elaborazione vi sarebbe anche il tempo di conversione. \\
+Una volta acquisiti i dati da file, per ciascun tipo, impiego la funzione clock\_gettime(), la quale viene richiamata prima e dopo aver finito di calcolare la sigmoide su tutti i dati.\\
+Successivamente ho ripetuto lo stesso esperimento, incrementando gradualmente il numero di elementi, per verificare se l'eventuale margine fosse influenzato dalle dimensioni, nello specifico lo step scelto è stato di 10 mila, con numero massimo di 5 milioni.
+
+\begin{figure}[h]
+	\includegraphics[scale=0.15]{tempi}
+	\centering
+	\caption{"Tempi all'aumentare degli elementi"}
+\end{figure}
+
+
+\subsubsection{Parte 1 - Esito}
+
+
+I risultati hanno evidenziato che la funzione, calcolata mediante manipolazione di bit, quindi impiegando solamente la ALU del processore, è più rapida di $\approx1.5-1.8$\ volte su un campione di 1 milione di elementi. \\
+Per quanto riguarda l'incremento, come si può evincere dalla Figura 3, il tempo di elaborazione aumenta linearmente all'aumentare del numero degli elementi in entrambi i casi, di conseguenza possiamo affermare che il vantaggio rimane pressoché costante.
+
+ 
+\subsubsection{Parte 2}
 
 
 
