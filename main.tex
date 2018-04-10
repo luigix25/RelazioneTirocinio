@@ -234,9 +234,29 @@ Per quanto riguarda l'incremento, come si può evincere dalla Figura 3, il tempo
  
 \subsubsection{Parte 2}
 
+In questa seconda parte ho voluto usare come metro di paragone, invece della curva logistica su Float, una sua versione approssimata ottenuta mediante quanto descritto nell'articolo "A Fast, Compact Approximation of the Exponential Function"\cite{afast}. In particolare si sfrutta il fatto che, i Float, utilizzano una rappresentazione del tipo $2^x$ per ottenere $e^x$, il tutto operando semplici operazioni sui bit ed una divisione come fattore correttivo. %controllare
 
+\subsubsection{Parte 2 - Esito}
 
+%Aggiungere codice sigmoide approssimata, clockgettime per il test
 
+I risultati mostrano che, nonostante l'aver adoperato questo tipo di approssimazione, risulta essere ancora conveniente l'utilizzo dei Posit.
+%aggiungere vantaggio
+
+\subsubsection{Parte 3}
+
+Test con x/boh
+
+\subsubsection{Parte 3 - Esito}
+
+\subsubsection{Codice}
+
+\newpage
+\section{Divisione e Moltiplicazione mediante Regime}
+\subsection{Introduzione}
+
+Lavorando con Posit con 0 bit di esponente, il "superesponente" $(2^{2^{es}})^{regime}$ viene notevolmente semplificato, in quanto $2^{2^{0}} = 2 => 2^{regime} $ esattamente come nei Float. L'unica differenza consiste nel fatto che il regime non è un campo a dimensione fissa.\\ L'idea è stata quella di sfruttare questa caratteristica dei Posit 0, per implementare moltiplicazioni e divisione, per potenze del 2, semplicemente intervenendo sul regime. Il grande vantaggio consiste nel fatto che essendo esso composto da una sequenza di bit uguali, incrementarne o decrementarne il valore è relativamente semplice e poco costoso!\\
+Ad esempio, dato un Posit-0: 0 001 00000\footnote{Regime = -2; Mantissa = 0}, il quale rappresenta +0.25, se volessimo dividerlo per 2, basterebbe aggiungere uno 0 al regime, ottenendo quindi 0 0001 0000\footnote{Regime = -3; Mantissa = 0} = +0.125
 
 
 \section{Codice?}
