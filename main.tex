@@ -258,15 +258,34 @@ Test con x/boh
 Lavorando con Posit con 0 bit di esponente, il "superesponente" $(2^{2^{es}})^{regime}$ viene notevolmente semplificato, in quanto $2^{2^{0}} = 2 => 2^{regime} $ esattamente come nei Float. L'unica differenza consiste nel fatto che il regime non è un campo a dimensione fissa.\\ L'idea è stata quella di sfruttare questa caratteristica dei Posit 0, per implementare moltiplicazioni e divisione, per potenze del 2, semplicemente intervenendo sul regime. Il grande vantaggio consiste nel fatto che essendo esso composto da una sequenza di bit uguali, incrementarne o decrementarne il valore è relativamente semplice e poco costoso!\\
 Ad esempio, dato un Posit-0: 0 001 00000\footnote{Regime = -2; Mantissa = 0}, il quale rappresenta +0.25, se volessimo dividerlo per 2, basterebbe aggiungere uno 0 al regime, ottenendo quindi 0 0001 0000\footnote{Regime = -3; Mantissa = 0} = +0.125
 
+\subsection{Accuratezza}
 
-\section{Codice?}
+Dopo aver implementato le funzioni che eseguono rispettivamente moltiplicazione e divisione, ne ho voluto testare l'accuratezza confrontando i risultati, utilizzando come riferimento i Double. \\
+Nello specifico ho confrontato il delta fra il riferimento e i risultati ottenuti eseguendo lo stesso calcolo su Posit e Float.
 
+\subsubsection{Risultati} 
+
+Su un campione di 1 milione di numeri non è stata evidenziata alcuna differenza fra i risultati ottenuti con i Float e con i Posit nel 100\% dei casi.\\
+Il risultato è giustificabile con il fatto che, eliminando il "superesponente" il Posit diventa un Float con una mantissa a dimensione variabile.
+
+\subsection{Tempi}
+Una volta dimostrato che non vi è alcun vantaggio, in termini di accuratezza, ho voluto verificare quanto fosse il guadagno in termini computazionali.\\
+Il test è stato svolto su un campione di 1 milione di elementi, sfruttando la funzione clock\_gettime(), come già fatto in precedenza.
+\subsubsection{Risultati}
+
+\subsection{Codice}
 \begin{lstlisting}[language=C++]
-	//Prova.cpp
-	printf("Ciao");
-	
-	
+//Prova.cpp
+printf("Ciao");
+
+
 \end{lstlisting}
+
+\newpage
+\section{Conclusioni}
+Nel complesso i Posit si sono rivelati un'ottima alternativa alle soluzioni attualmente impiegate, % aspetti positivi, 
+L'unica cosa che 
+
 \newpage
 
 
