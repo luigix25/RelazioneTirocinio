@@ -50,7 +50,8 @@
 	\includegraphics[scale=0.8]{posit}
 	\centering
 	\caption{"Formato Posit"}
-	\end{figure}Il vantaggio nell'avere un super esponente, la cui lunghezza non è definita, permette di ottenere un range di numeri molto più flessibile, il suo contributo è pari a $2^{2^{es}}$ con es il numero di bit dell'esponente\footnote{L'esponente è l'unico campo ad avere una dimensione fissa}, permettendo quindi una riduzione del numero di bit assegnati a quest'ultimo campo oppure un incremento di range.\newline Questi bit di regime non sono altro che una sequenza di cifre binarie identiche, terminate dal complemento di esse. \newline Ad esempio: 0001 rappresenta -3, dove 3 è il numero degli 0 ed 1 è il terminatore.\footnote{Regimi che iniziano per 0 sono negativi, per 1 invece sono positivi. Lo 0 è rappresentato come 10}\cite{epfl1}
+	\end{figure}Il vantaggio nell'avere un super esponente, la cui lunghezza non è definita, permette di ottenere un range di numeri molto più flessibile, il suo contributo è pari a $2^{2^{es}}$ con es il numero di bit dell'esponente\footnote{L'esponente è l'unico campo ad avere una dimensione fissa}, permettendo ad esempio una riduzione del numero di bit assegnati a quest'ultimo campo.\newline Questi bit di regime non sono altro che una sequenza di cifre binarie identiche, terminate dal complemento di esse. \newline Ad esempio: 0001 rappresenta -3, dove 3 è il numero degli 0 ed 1 è il terminatore.\footnote{Regimi che iniziano per 0 sono negativi, per 1 invece sono positivi. Lo 0 è rappresentato come 10}\cite{epfl1} \\
+	Non sono inoltre previsti overflow e underflow o la rappresentazione di NaN.
 	
 	\subsection{Note sui Test}
 	Tutti i test svolti sui Posit sono stati effettuati sfruttando la libreria in C++ BFP\cite{libbfp} 
@@ -62,16 +63,16 @@
 \section {Test su Moltiplicazione}
 \subsection{Accuratezza}
 
-Questo test vuole dimostrare che a parità di bit utilizzati, 32 in questo caso, i Posit risultano essere più precisi nel rappresentare i risultati di prodotti, rispetto ad un Float in precisione singola.\\
+Questo test vuole dimostrare che a parità di bit utilizzati, 32 in questo caso, i Posit risultano essere più precisi nel rappresentare i risultati di prodotti, rispetto ad un Float a 32 bit.\\
 In questo particolare caso sono stati impiegati Posit [32,3], ossia 32 bit totali, di cui 3 di esponente.
 \subsubsection{Svolgimento}
 Il test consiste nel creare 9 array, 6 per gli operandi e 3 per i risultati, di una dimensione compresa nell'ordine dei milioni: \begin{itemize}
 	\item 3 di Posit [32,3]
 	\item 3 di Float a 32 bit 
 	\item 3 di Double a 64 bit come riferimento
-\end{itemize} Il passo successivo consiste nel popolare gli array degli operandi, operazione che viene svolta partendo dai double sfruttando una funzione che genera dei numeri in modo pseudo-casuale, per poi provvedere a riempire gli altri semplicemente operando le necessarie conversioni.\\
-Successivamente sono state eseguiti i vari prodotti i cui risultati sono stati collocati nel terzo array di ciascun tipo. Infine, per poter confrontare il tutto, i risultati sono stati riportarti in double e ne è stata fatta la differenza, in modulo, rispetto al riferimento.\\\\ Definisco: \begin{center}  $\Delta_i$(Posit) = $|PositRes_i - DoubleRes_i|$  \\ $\Delta_i$(Float)  = $|FloatRes_i - DoubleRes_i|$ \end{center} 
-Dove FloatRes e PositRes sono il risultato del prodotto, fra float e posit rispettivamente, convertiti in double. \\Se $\Delta_i$(Posit) $<$ $\Delta_i$(Float) i posit sono più precisi dei float per questo indice.\\ Se $\Delta_i$(Posit) $>$ $\Delta_i$(Float) i float sono più precisi dei posit per questo indice.
+\end{itemize} Il passo successivo consiste nel popolare gli array degli operandi, operazione che viene svolta partendo dai Double sfruttando una funzione che genera dei numeri in modo pseudo-casuale, per poi provvedere a riempire gli altri semplicemente operando le necessarie conversioni.\\
+Successivamente sono state eseguiti i vari prodotti i cui risultati sono stati collocati nel terzo array di ciascun tipo. Infine, per poter confrontare il tutto, i risultati sono stati riportarti in Double e ne è stata fatta la differenza, in modulo, rispetto al riferimento.\\\\ Definisco: \begin{center}  $\Delta_i$(Posit) = $|PositRes_i - DoubleRes_i|$  \\ $\Delta_i$(Float)  = $|FloatRes_i - DoubleRes_i|$ \end{center} 
+Dove FloatRes e PositRes sono il risultato del prodotto, fra Float e Posit rispettivamente, convertiti in double. \\Se $\Delta_i$(Posit) $<$ $\Delta_i$(Float) i Posit sono più precisi dei Float per questo indice.\\ Se $\Delta_i$(Posit) $>$ $\Delta_i$(Float) i Float sono più precisi dei Posit per questo indice.
 
 \subsubsection{Conclusioni}
 Dai risultati dei test svolti, i Posit si sono rivelati essere più precisi dei Float nel $\approx56$\% dei casi. Sono risultati pari merito nel $\approx16$\% dei casi.\\
@@ -104,7 +105,7 @@ I primi due vengono popolati con numeri generati in modo pseudo-casuale, mentre 
 
 \subsubsection{Conclusioni}
 Come potevamo aspettarci i Float con supporto hardware, sono stati $\approx11$ volte più veloci dei SoftFloat o dei Posit. Per quanto riguarda i Posit invece, sono stati più lenti di $\approx2$ volte rispetto ai SoftFloat. Anche questo risultato era prevedibile, in quanto i Posit non sono altro che una generalizzazione dei Float, avendo aggiunto dei campi a lunghezza variabile. 
-
+\newpage
 \subsubsection{Codice}
 \begin{lstlisting}[language=C++]
 //Funzione per calcolo tempi Posit
@@ -139,11 +140,11 @@ double doTestPosit(unsigned int *X,unsigned int *Y,unsigned long n)
 \newpage
 \section{Test su Sigmoide}
 \subsection{Introduzione}
-Una caratteristica dei Posit con 0 bit di esponente, come osservato da Isaac Yonemoto, è che risulta molto facile e conveniente a livello computazionale, calcolare la funzione sigmoide, infatti bastano dei semplici shift e not. Essa trova largo impiego nell'ambito delle reti neurali e machine learning.
+Una caratteristica dei Posit con 0 bit di esponente, come osservato da Isaac Yonemoto, è che risulta molto facile e conveniente, a livello computazionale, calcolare la funzione sigmoidea, infatti bastano dei semplici shift e not. Essa trova largo impiego nell'ambito delle reti neurali e machine learning.
 \\Per poter eseguire i seguenti test, è stato necessario implementare una funzione di conversione da Posit[32-0] a Float, in quanto la libreria ne risulta essere sprovvista.
 
-\subsection{Valori}
-Il primo test che sono andato ad eseguire è stato di tipo numerico, ossia data la funzione sigmoide  $ f(x) = \frac {1}{1 + e^{-x}} $, ne ho confrontato i risultati con quelli restituiti dalla sigmoide ottenuta mediante manipolazione dei bit.
+\subsection{Accuratezza}
+Il primo test che sono andato ad eseguire è stato di tipo numerico, ossia data la funzione  $ f(x) = \frac {1}{1 + e^{-x}} $, ne ho confrontato i risultati con quelli restituiti dalla sigmoide ottenuta mediante manipolazione dei bit.
 
 \subsubsection{Svolgimento}
 
@@ -208,13 +209,13 @@ float Posit::subconv(){
 \newpage
 \subsection{Tempi}
 
-Una volta dimostrato che possiamo approssimare la sigmoide, il passo successivo è quello di provare che effettivamente vi sia risparmio tangibile nell'eseguire i calcoli. \\
+Una volta dimostrato che possiamo approssimare la sigmoide, il passo successivo è quello di provare che effettivamente vi sia un risparmio tangibile nell'eseguire i calcoli. \\
 Questo test, suddiviso in più parti, effettua diversi confronti, sui tempi di elaborazione, fra sigmoide su Posit e sigmoide ottenuta in vari modi sui Float.
 
 \subsubsection{Parte 1}
 
 Il primo confronto eseguito è stato con la funzione sigmoide esponenziale  $ f(x) = \frac {1}{1 + e^{-x}} $, la stessa utilizzata nel test numerico.\\
-Esso consiste nel generare un milione di Float pseudo-casual,i e di scriverli su file sia come Float che come Posit sotto forma di bit, il tutto per evitare di falsare il test a sfavore di questi ultimi, in quanto nel tempo di elaborazione vi sarebbe anche il tempo di conversione. \\
+Esso consiste nel generare un milione di Float pseudo-casuali, e di scriverli su file sia come Float che come Posit sotto forma di bit, il tutto per evitare di falsare il test a sfavore di questi ultimi, in quanto nel tempo di elaborazione vi sarebbe anche il tempo di conversione. \\
 Una volta acquisiti i dati da file, per ciascun tipo, impiego la funzione clock\_gettime(), la quale viene richiamata prima e dopo aver finito di calcolare la sigmoide su tutti i dati.\\
 Successivamente ho ripetuto lo stesso esperimento, incrementando gradualmente il numero di elementi, per verificare se l'eventuale margine fosse influenzato dalle dimensioni, nello specifico lo step scelto è stato di 10 mila, con numero massimo di 5 milioni.
 
@@ -234,22 +235,29 @@ Per quanto riguarda l'incremento, come si può evincere dalla Figura 3, il tempo
  
 \subsubsection{Parte 2}
 
-In questa seconda parte ho voluto usare come metro di paragone, invece della curva logistica su Float, una sua versione approssimata ottenuta mediante quanto descritto nell'articolo "A Fast, Compact Approximation of the Exponential Function"\cite{afast}. In particolare si sfrutta il fatto che, i Float, utilizzano una rappresentazione del tipo $2^x$ per ottenere $e^x$, il tutto operando semplici operazioni sui bit ed una divisione come fattore correttivo. %controllare
-
+In questa seconda parte ho voluto usare come metro di paragone, invece della curva logistica su Float, una sua versione approssimata ottenuta mediante quanto descritto nell'articolo "A Fast, Compact Approximation of the Exponential Function"\cite{afast}. In particolare questo algoritmo ci permette di ottenere una approssimazione di $e^{x}$, sfruttando il fatto che i Float, utilizzano una rappresentazione del tipo $2^x$. Il vantaggio consiste nel fatto che il tutto è ottenuto operando solamente semplici operazioni sui bit.\\
+La metodologia del test è medesima a prima.
 \subsubsection{Parte 2 - Esito}
 
 %Aggiungere codice sigmoide approssimata, clockgettime per il test
+%aggiungere codice sigmoide con posit e codice fast ecc
 
-I risultati mostrano che, nonostante l'aver adoperato questo tipo di approssimazione, risulta essere ancora conveniente l'utilizzo dei Posit.
-%aggiungere vantaggio
+I risultati mostrano che per calcolare la sigmoide con i Posit ci si impiega in media $\approx4.8-5$ volte in meno. Di conseguenza nonostante l'aver adoperato questo tipo di approssimazione, risulta essere essere sconveniente l'utilizzo dei Float.
 
 \subsubsection{Parte 3}
+L'ultimo confronto che ho voluto eseguire, è stato usando come riferimento una versione della sigmoide che non fa uso di espoenziali $f(x) = \frac{x}{\sqrt{1+x^{2}}}$, quindi in teoria ancora più rapida da calcolare.\\
+Anche in questo caso la metodologia del test è medesima ai precedenti.
 
-Test con x/boh
 
 \subsubsection{Parte 3 - Esito}
 
+I risultati hanno visto di nuovo i Posit trionfare, questa volta sono risultati essere $\approx1.4-1.6$ volte più veloci rispetto ai Float.
+
 \subsubsection{Codice}
+
+\subsection{Conclusioni}
+I Posit risultano essere gli assoluti vincitori sui tempi di calcolo della sigmoide, rendendoli particolarmente interessanti in ambienti in cui 
+
 
 \newpage
 \section{Divisione e Moltiplicazione mediante Regime}
@@ -283,8 +291,7 @@ printf("Ciao");
 
 \newpage
 \section{Conclusioni}
-Nel complesso i Posit si sono rivelati un'ottima alternativa alle soluzioni attualmente impiegate, % aspetti positivi, 
-L'unica cosa che 
+Nel complesso i Posit si sono rivelati un'ottima alternativa alle soluzioni attualmente impiegate, e sarebbe davvero interessante vederne una loro implementazione hardware. 
 
 \newpage
 
