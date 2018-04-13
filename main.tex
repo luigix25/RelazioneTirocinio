@@ -50,7 +50,7 @@
 	\includegraphics[scale=0.8]{posit}
 	\centering
 	\caption{"Formato Posit"}
-	\end{figure}Il vantaggio nell'avere un super esponente, la cui lunghezza non è definita, permette di ottenere un range di numeri molto più flessibile, il suo contributo è pari a $2^{2^{es}}$ con es il numero di bit dell'esponente\footnote{L'esponente è l'unico campo ad avere una dimensione fissa}, permettendo ad esempio una riduzione del numero di bit assegnati a quest'ultimo campo.\newline Questi bit di regime non sono altro che una sequenza di cifre binarie identiche, terminate dal complemento di esse. \newline Ad esempio: 0001 rappresenta -3, dove 3 è il numero degli 0 ed 1 è il terminatore.\footnote{Regimi che iniziano per 0 sono negativi, per 1 invece sono positivi. Lo 0 è rappresentato come 10}\cite{epfl1} \\
+	\end{figure}Il vantaggio nell'avere un super esponente, la cui lunghezza non è definita, permette di ottenere un range di numeri molto più flessibile, il suo contributo è pari a $2^{2^{es}}$ con es il numero di bit dell'esponente\footnote{L'esponente è l'unico campo ad avere una dimensione fissa}, permettendo ad esempio una riduzione del numero di bit assegnati a quest'ultimo campo.\newline Questi bit di regime non sono altro che una sequenza di cifre binarie identiche, terminate dal complemento di esse. \newline Ad esempio: 0001 rappresenta -3, dove 3 è il numero degli 0 ed 1 è il terminatore.\footnote{Regimi che iniziano per 0 sono negativi, per 1 invece sono positivi. Lo 0 è rappresentato come 10} \\
 	Non sono inoltre previsti overflow e underflow o la rappresentazione di NaN.
 	
 	\subsection{Note sui Test}
@@ -239,9 +239,6 @@ In questa seconda parte ho voluto usare come metro di paragone, invece della cur
 La metodologia del test è medesima a prima.
 \subsubsection{Parte 2 - Esito}
 
-%Aggiungere codice sigmoide approssimata, clockgettime per il test
-%aggiungere codice sigmoide con posit e codice fast ecc
-
 I risultati mostrano che per calcolare la sigmoide con i Posit ci si impiega in media $\approx4.8-5$ volte in meno. Di conseguenza nonostante l'aver adoperato questo tipo di approssimazione, risulta essere essere sconveniente l'utilizzo dei Float.
 
 \subsubsection{Parte 3}
@@ -252,15 +249,54 @@ Anche in questo caso la metodologia del test è medesima ai precedenti.
 \subsubsection{Parte 3 - Esito}
 
 I risultati hanno visto di nuovo i Posit trionfare, questa volta sono risultati essere $\approx1.4-1.6$ volte più veloci rispetto ai Float.
-
+\newpage
 \subsubsection{Codice}
+\begin{lstlisting}[language=C++]
+//Test per Posit
+double doTestPosit(unsigned int *posit_array,unsigned long n)
+{
+	auto p = Posit(32, 0);
+	timespec start, stop;
+	clock_gettime( CLOCK_REALTIME, &start);
+	for(unsigned long i=0;i<n;i++){
+		sigmoid(posit_array[i]);	
+	}
+	clock_gettime( CLOCK_REALTIME, &stop);
+	double res = BILLION*( stop.tv_sec - start.tv_sec ) 
+	+ ( stop.tv_nsec - start.tv_nsec ); 
+	return res;
+}
+//Sigmoide su Posit
+unsigned int sigmoid(unsigned int bits){
+	bits = bits ^ 0x80000000;
+	bits = bits >> 2;
+	return bits;
+}
+//Sigmoide Curva Logistica
+float sigmoid(float &x){
+	return 1/(exp(-x)+1);
+}
+//Sigmoide Esponenziale Approssimata
+float sigmoid(float &x){
+	return 1/(EXP_V(-x)+1);
+}
+//Sigmoide Approssimata con Float
+float sigmoid(float &x){
+	return x/sqrtf((float)(x*x+1));
+}
+//Approssimazione Esponenziale
+#define EXPA (1048576/LN2) 		
+#define EXPC 60801 			
+#define EXP_V(y) (eco.n.i = EXPA*(y) + (1072693248 - EXPC), eco.d)
 
+\end{lstlisting}
+\newpage
 \subsection{Conclusioni}
-I Posit risultano essere gli assoluti vincitori sui tempi di calcolo della sigmoide, rendendoli particolarmente interessanti in ambienti in cui 
+I Posit sono stati gli assoluti vincitori sui tempi di calcolo della sigmoide, senza perdere troppo in accuratezza, rendendoli particolarmente interessanti in ambienti in cui ne viene fatto un largo impiego. Inoltre vista la presenza del superesponente, si potrebbe anche pensare di utilizzare meno bit per i dati, non rinunciando eccessivamente sulla precisione o sul range di rappresentabilità.
 
 
 \newpage
-\section{Divisione e Moltiplicazione mediante Regime}
+\section{Divisione e Moltiplicazione mediante regime}
 \subsection{Introduzione}
 
 Lavorando con Posit con 0 bit di esponente, il "superesponente" $(2^{2^{es}})^{regime}$ viene notevolmente semplificato, in quanto $2^{2^{0}} = 2 => 2^{regime} $ esattamente come nei Float. L'unica differenza consiste nel fatto che il regime non è un campo a dimensione fissa.\\ L'idea è stata quella di sfruttare questa caratteristica dei Posit 0, per implementare moltiplicazioni e divisione, per potenze del 2, semplicemente intervenendo sul regime. Il grande vantaggio consiste nel fatto che essendo esso composto da una sequenza di bit uguali, incrementarne o decrementarne il valore è relativamente semplice e poco costoso!\\
@@ -281,24 +317,45 @@ Una volta dimostrato che non vi è alcun vantaggio, in termini di accuratezza, h
 Il test è stato svolto su un campione di 1 milione di elementi, sfruttando la funzione clock\_gettime(), come già fatto in precedenza.
 \subsubsection{Risultati}
 
-\subsection{Codice}
+Dai dati emersi i Float risultano essere più veloci di $\approx 2-2.5$ volte rispetto ai Posit nelle divisioni, mentre nelle moltiplicazioni il divario aumenta fino a $\approx 3$ volte.\\
+Per quanto possa sembrare strano ad un primo impatto, un risultato del genere è del tutto normale, in quanto le divisioni e moltiplicazioni, per potenze del 2, sui Float risultano essere ancora più semplici, in quanto basta semplicemente incrementare (o decrementare) l'esponente, il che è ulteriormente facilitato dalla loro natura "statica".
+
+\subsubsection{Codice}
 \begin{lstlisting}[language=C++]
-//Prova.cpp
-printf("Ciao");
+//Funzione per calcolare i tempi di esecuzione
+double doTestPosit(unsigned int *X,unsigned long n)
+{
+	auto p1 = Posit(32, 0);  
+	timespec start, stop;
+	
+	clock_gettime( CLOCK_REALTIME, &start);
+	for(unsigned long i=0;i<n;i++){
+		p1.setBits(X[i]);	
+		p1.mul_p2(4);			//moltiplico per 16
+	}
+	
+	clock_gettime( CLOCK_REALTIME, &stop);
+	
+	double res = BILLION*( stop.tv_sec - start.tv_sec ) + 
+	( stop.tv_nsec - start.tv_nsec );
+	
+	return res;
+
+}
 
 
 \end{lstlisting}
 
 \newpage
 \section{Conclusioni}
-Nel complesso i Posit si sono rivelati un'ottima alternativa alle soluzioni attualmente impiegate, e sarebbe davvero interessante vederne una loro implementazione hardware. 
+Nel complesso i Posit si sono rivelati un'ottima alternativa alle soluzioni attualmente impiegate, sopratutto dal punto di vista della flessibilità, basti pensare all'assenza di under o overflow, e sarebbe davvero interessante vederne una loro implementazione hardware, per poterne testare a pieno le potenzialità senza essere vincolati a delle implementazioni software. Inoltre la sua versione a 0 bit di esponente, ha mostrato caratteristiche davvero particolari, come ad esempio la possibilità di calcolare la sigmoide a costo "nullo", che meriterebbero ulteriori analisi.
 
 \newpage
 
 
 
 
-	\nocite{articolo1}
+%	\nocite{articolo1}
 	
 	\printbibliography[title=Bibliografia]
 
