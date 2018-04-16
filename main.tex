@@ -45,7 +45,7 @@
 	\section{Introduzione}
 	\subsection{Posit}
 
-	Il Posit è un formato di numero in virgola mobile ideato da John Gustafson, in alternativa allo standard IEEE 754. L'idea di base è fondamentalmente la stessa, anche nei Posit è presente un bit per il segno, dei bit per l'esponente e dei bit per la mantissa, le principali differenze consistono nella presenza di un "super esponente" o regime e nel non avere un numero di bit fissato per quest'ultimo e per la mantissa. \\
+	Il Posit è un formato di numero in virgola mobile ideato da John Gustafson\cite{john}, in alternativa allo standard IEEE 754. L'idea di base è fondamentalmente la stessa, anche nei Posit è presente un bit per il segno, dei bit per l'esponente e dei bit per la mantissa, le principali differenze consistono nella presenza di un "super esponente" o regime e nel non avere un numero di bit fissato per quest'ultimo e per la mantissa. \\
 	\begin{figure}[h]
 	\includegraphics[scale=0.8]{posit}
 	\centering
@@ -71,7 +71,7 @@ Il test consiste nel creare 9 array, 6 per gli operandi e 3 per i risultati, di 
 	\item 3 di Float a 32 bit 
 	\item 3 di Double a 64 bit come riferimento
 \end{itemize} Il passo successivo consiste nel popolare gli array degli operandi, operazione che viene svolta partendo dai Double sfruttando una funzione che genera dei numeri in modo pseudo-casuale, per poi provvedere a riempire gli altri semplicemente operando le necessarie conversioni.\\
-Successivamente sono state eseguiti i vari prodotti i cui risultati sono stati collocati nel terzo array di ciascun tipo. Infine, per poter confrontare il tutto, i risultati sono stati riportarti in Double e ne è stata fatta la differenza, in modulo, rispetto al riferimento.\\\\ Definisco: \begin{center}  $\Delta_i$(Posit) = $|PositRes_i - DoubleRes_i|$  \\ $\Delta_i$(Float)  = $|FloatRes_i - DoubleRes_i|$ \end{center} 
+Successivamente sono stati eseguiti i vari prodotti i cui risultati sono stati collocati nel terzo array di ciascun tipo. Infine, per poter confrontare il tutto, i risultati sono stati riportarti in Double e ne è stata fatta la differenza, in modulo, rispetto al riferimento.\\\\ Definisco: \begin{center}  $\Delta_i$(Posit) = $|PositRes_i - DoubleRes_i|$  \\ $\Delta_i$(Float)  = $|FloatRes_i - DoubleRes_i|$ \end{center} 
 Dove FloatRes e PositRes sono il risultato del prodotto, fra Float e Posit rispettivamente, convertiti in double. \\Se $\Delta_i$(Posit) $<$ $\Delta_i$(Float) i Posit sono più precisi dei Float per questo indice.\\ Se $\Delta_i$(Posit) $>$ $\Delta_i$(Float) i Float sono più precisi dei Posit per questo indice.
 
 \subsubsection{Conclusioni}
@@ -144,12 +144,12 @@ Una caratteristica dei Posit con 0 bit di esponente, come osservato da Isaac Yon
 \\Per poter eseguire i seguenti test, è stato necessario implementare una funzione di conversione da Posit[32-0] a Float, in quanto la libreria ne risulta essere sprovvista.
 
 \subsection{Accuratezza}
-Il primo test che sono andato ad eseguire è stato di tipo numerico, ossia data la funzione  $ f(x) = \frac {1}{1 + e^{-x}} $, ne ho confrontato i risultati con quelli restituiti dalla sigmoide ottenuta mediante manipolazione dei bit.
+Il primo test che è stato eseguito è di tipo numerico, ossia data la funzione  $ f(x) = \frac {1}{1 + e^{-x}} $, sono stati confrontati i risultati con quelli restituiti dalla sigmoide ottenuta mediante manipolazione dei bit.
 
 \subsubsection{Svolgimento}
 
-Per questo tipo di test ho generato un numero di Float, nell'ordine delle migliaia, in modo pseudo-casuale nel range -30 e 30, e ne ho calcolato la sigmoide sfruttando prima la funzione con l'esponenziale, e successivamente, dopo aver convertito il numero in Posit, l'altra.
-Infine ho plottato tutti i risultati su MatLab ed ho ottenuto il seguente grafico:
+Per questo tipo di test vengono generati un numero di Float, nell'ordine delle migliaia, in modo pseudo-casuale nel range -30 e 30, e ne viene calcolata la sigmoide sfruttando prima la funzione con l'esponenziale, e successivamente, dopo aver convertito il numero in Posit, l'altra.
+Infine è stato eseguito un plot di tutti i risultati su MatLab ed ottenuto il seguente grafico:
 
 \begin{figure}[h]
 	\includegraphics[scale=0.15]{sigmoide_2}
@@ -216,8 +216,8 @@ Questo test, suddiviso in più parti, effettua diversi confronti, sui tempi di e
 
 Il primo confronto eseguito è stato con la funzione sigmoide esponenziale  $ f(x) = \frac {1}{1 + e^{-x}} $, la stessa utilizzata nel test numerico.\\
 Esso consiste nel generare un milione di Float pseudo-casuali, e di scriverli su file sia come Float che come Posit sotto forma di bit, il tutto per evitare di falsare il test a sfavore di questi ultimi, in quanto nel tempo di elaborazione vi sarebbe anche il tempo di conversione. \\
-Una volta acquisiti i dati da file, per ciascun tipo, impiego la funzione clock\_gettime(), la quale viene richiamata prima e dopo aver finito di calcolare la sigmoide su tutti i dati.\\
-Successivamente ho ripetuto lo stesso esperimento, incrementando gradualmente il numero di elementi, per verificare se l'eventuale margine fosse influenzato dalle dimensioni, nello specifico lo step scelto è stato di 10 mila, con numero massimo di 5 milioni.
+Una volta acquisiti i dati da file, per ciascun tipo, viene impiegata la funzione clock\_gettime(), la quale viene richiamata prima e dopo aver finito di calcolare la sigmoide su tutti i dati.\\
+Successivamente è stato ripetuto lo stesso esperimento, incrementando gradualmente il numero di elementi, per verificare se l'eventuale margine fosse influenzato dalle dimensioni, nello specifico lo step scelto è stato di 10 mila, con numero massimo di 5 milioni.
 
 \begin{figure}[h]
 	\includegraphics[scale=0.15]{tempi}
@@ -235,14 +235,14 @@ Per quanto riguarda l'incremento, come si può evincere dalla Figura 3, il tempo
  
 \subsubsection{Parte 2}
 
-In questa seconda parte ho voluto usare come metro di paragone, invece della curva logistica su Float, una sua versione approssimata ottenuta mediante quanto descritto nell'articolo "A Fast, Compact Approximation of the Exponential Function"\cite{afast}. In particolare questo algoritmo ci permette di ottenere una approssimazione di $e^{x}$, sfruttando il fatto che i Float, utilizzano una rappresentazione del tipo $2^x$. Il vantaggio consiste nel fatto che il tutto è ottenuto operando solamente semplici operazioni sui bit.\\
+In questa seconda parte è stato scelto come metro di paragone, invece della curva logistica su Float, una sua versione approssimata ottenuta mediante quanto descritto nell'articolo "A Fast, Compact Approximation of the Exponential Function"\cite{afast}. In particolare questo algoritmo ci permette di ottenere una approssimazione di $e^{x}$, sfruttando il fatto che i Float, utilizzano una rappresentazione del tipo $2^x$. Il vantaggio consiste nel fatto che il tutto è ottenuto operando solamente semplici operazioni sui bit.\\
 La metodologia del test è medesima a prima.
 \subsubsection{Parte 2 - Esito}
 
 I risultati mostrano che per calcolare la sigmoide con i Posit ci si impiega in media $\approx4.8-5$ volte in meno. Di conseguenza nonostante l'aver adoperato questo tipo di approssimazione, risulta essere essere sconveniente l'utilizzo dei Float.
 
 \subsubsection{Parte 3}
-L'ultimo confronto che ho voluto eseguire, è stato usando come riferimento una versione della sigmoide che non fa uso di espoenziali $f(x) = \frac{x}{\sqrt{1+x^{2}}}$, quindi in teoria ancora più rapida da calcolare.\\
+L'ultimo confronto che eseguito, è stato usando come riferimento una versione della sigmoide che non fa uso di espoenziali $f(x) = \frac{x}{\sqrt{1+x^{2}}}$, quindi in teoria ancora più rapida da calcolare.\\
 Anche in questo caso la metodologia del test è medesima ai precedenti.
 
 
@@ -304,8 +304,8 @@ Ad esempio, dato un Posit-0: 0 001 00000\footnote{Regime = -2; Mantissa = 0}, il
 
 \subsection{Accuratezza}
 
-Dopo aver implementato le funzioni che eseguono rispettivamente moltiplicazione e divisione, ne ho voluto testare l'accuratezza confrontando i risultati, utilizzando come riferimento i Double. \\
-Nello specifico ho confrontato il delta fra il riferimento e i risultati ottenuti eseguendo lo stesso calcolo su Posit e Float.
+Dopo aver implementato le funzioni che eseguono rispettivamente moltiplicazione e divisione, è stata testata l'accuratezza confrontando i risultati, utilizzando come riferimento i Double. \\
+Nello specifico sono stati confrontati il delta fra il riferimento e i risultati ottenuti eseguendo lo stesso calcolo su Posit e Float.
 
 \subsubsection{Risultati} 
 
@@ -313,7 +313,7 @@ Su un campione di 1 milione di numeri non è stata evidenziata alcuna differenza
 Il risultato è giustificabile con il fatto che, eliminando il "superesponente" il Posit diventa un Float con una mantissa a dimensione variabile.
 
 \subsection{Tempi}
-Una volta dimostrato che non vi è alcun vantaggio, in termini di accuratezza, ho voluto verificare quanto fosse il guadagno in termini computazionali.\\
+Una volta dimostrato che non vi è alcun vantaggio, in termini di accuratezza, sono stati effettuate verifiche per capire quanto fosse il guadagno in termini computazionali.\\
 Il test è stato svolto su un campione di 1 milione di elementi, sfruttando la funzione clock\_gettime(), come già fatto in precedenza.
 \subsubsection{Risultati}
 
@@ -398,12 +398,12 @@ double Posit::subconv64(){
 
 \newpage
 \section{Conclusioni}
-Nel complesso i Posit si sono rivelati un'ottima alternativa alle soluzioni attualmente impiegate, sopratutto dal punto di vista della flessibilità, basti pensare all'assenza di under o overflow, e sarebbe davvero interessante vederne una loro implementazione hardware, per poterne testare a pieno le potenzialità senza essere vincolati a delle implementazioni software. Inoltre la sua versione a 0 bit di esponente, ha mostrato caratteristiche davvero particolari, come ad esempio la possibilità di calcolare la sigmoide a costo "nullo", che meriterebbero ulteriori analisi.
+Nel complesso i Posit si sono rivelati un'ottima alternativa alle soluzioni attualmente impiegate, soprattutto dal punto di vista della flessibilità, basti pensare all'assenza di under o overflow, e sarebbe davvero interessante vederne una loro implementazione hardware, per poterne testare a pieno le potenzialità senza essere vincolati a delle implementazioni software. Inoltre la sua versione a 0 bit di esponente, ha mostrato caratteristiche davvero particolari, come ad esempio la possibilità di calcolare la sigmoide a costo "nullo", che meriterebbero ulteriori analisi.
 
 \newpage
 
 \section{Appendice}
-Due funzioni che meritano una menzione particolare sono quelle destinate ad effettuare la conversione da Posit 0 a Float e a Double. Esse non sono tuttora presenti nella libreria bfp\cite{libbfp}, e quindi ho dovuto implementarle per lo svolgimento dei vari test.\\ L'idea di base dietro la loro realizzazione, consiste nel fatto che con 0 bit di esponente, il regime non è nient'altro che l'esponente dei FLot/Double, ad eccezione di una conversione da complemento a 2, a rappresentazione con bias. Di conseguenza il tutto si riduce ad estrapolare i vari campi, dinamici nei Posit, e convertirli nella dimensione fissa del formato di destinazione.
+Due funzioni che meritano una menzione particolare sono quelle destinate ad effettuare la conversione da Posit 0 a Float e a Double. Esse non sono tuttora presenti nella libreria bfp\cite{libbfp}, e quindi ho dovuto implementarle per lo svolgimento dei vari test.\\ L'idea di base dietro la loro realizzazione, consiste nel fatto che con 0 bit di esponente, il regime non è nient'altro che l'esponente dei Float/Double, ad eccezione di una conversione da complemento a 2, a rappresentazione con bias. Di conseguenza il tutto si riduce ad estrapolare i vari campi, dinamici nei Posit, e convertirli nella dimensione fissa del formato di destinazione.
 
 \newpage
 %	\nocite{articolo1}
