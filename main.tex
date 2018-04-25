@@ -104,7 +104,20 @@ Lo svolgimento del test è simile al precedente, vengono creati 6 array di dimen
 I primi due vengono popolati con numeri generati in modo pseudo-casuale, mentre i rimanenti 4 vengono riempiti convertendo, nei rispettivi formati, i numeri ottenuti precedentemente. Per poter ottenere i tempi è stata sfruttata la funzione clock\_gettime(), la quale restituisce il timestamp di sistema. Salvando il timestamp ad inizio e fine elaborazione, durante il quale vengono eseguite le moltiplicazioni fra i due array, si riescono ad ottenere per differenza i tempi di lavoro per ciascun tipo di numero.
 
 \subsubsection{Conclusioni}
-Come potevamo aspettarci i Float con supporto hardware, sono stati $\approx11$ volte più veloci dei SoftFloat o dei Posit. Per quanto riguarda i Posit invece, sono stati più lenti di $\approx2$ volte rispetto ai SoftFloat. Anche questo risultato era prevedibile, in quanto i Posit non sono altro che una generalizzazione dei Float, avendo aggiunto dei campi a lunghezza variabile. 
+Come potevamo aspettarci i Float con supporto hardware, sono stati $\approx11$ volte più veloci dei SoftFloat, mentre il divario è addirittura maggiore con i Posit. Per quanto riguarda questi ultimi, sono stati più lenti di $\approx2$ volte rispetto ai SoftFloat.\\ Anche questo risultato era prevedibile, in quanto i Posit non sono altro che una generalizzazione dei Float, avendo aggiunto dei campi a lunghezza variabile.
+
+\begin{table}[ht]
+	\centering
+	\begin{tabular}{l*{3}{c}r}
+		Test              &Float Hardware & SoftFloat & Posit  \\
+		\hline
+		Moltiplicazione		& 1 & $\approx11$ & $\approx22$   		\\
+		\hline
+	\end{tabular}
+	\caption{Moltiplicazione fra 2 numeri}
+\end{table}
+
+
 \newpage
 \subsubsection{Codice}
 \begin{lstlisting}[language=C++]
@@ -239,7 +252,7 @@ In questa seconda parte è stato scelto come metro di paragone, invece della cur
 La metodologia del test è medesima a prima.
 \subsubsection{Parte 2 - Esito}
 
-I risultati mostrano che per calcolare la sigmoide con i Posit ci si impiega in media $\approx4.8-5$ volte in meno. Di conseguenza nonostante l'aver adoperato questo tipo di approssimazione, risulta essere essere sconveniente l'utilizzo dei Float.
+I risultati mostrano che per calcolare la sigmoide con i Posit ci si impiega in media $\approx4.9-5.1$ volte in meno. Di conseguenza nonostante l'aver adoperato questo tipo di approssimazione, risulta essere essere sconveniente l'utilizzo dei Float.
 
 \subsubsection{Parte 3}
 L'ultimo confronto che eseguito, è stato usando come riferimento una versione della sigmoide che non fa uso di espoenziali $f(x) = \frac{x}{\sqrt{1+x^{2}}}$, quindi in teoria ancora più rapida da calcolare.\\
@@ -250,6 +263,9 @@ Anche in questo caso la metodologia del test è medesima ai precedenti.
 
 I risultati hanno visto di nuovo i Posit trionfare, questa volta sono risultati essere $\approx1.4-1.6$ volte più veloci rispetto ai Float.
 \newpage
+
+
+%\newpage
 \subsubsection{Codice}
 \begin{lstlisting}[language=C++]
 //Test per Posit
@@ -294,6 +310,19 @@ float sigmoid(float &x){
 \subsection{Conclusioni}
 I Posit sono stati gli assoluti vincitori sui tempi di calcolo della sigmoide, senza perdere troppo in accuratezza, rendendoli particolarmente interessanti in ambienti in cui ne viene fatto un largo impiego. Inoltre vista la presenza del superesponente, si potrebbe anche pensare di utilizzare meno bit per i dati, non rinunciando eccessivamente sulla precisione o sul range di rappresentabilità.
 
+\begin{table}[ht]
+	\centering
+	\begin{tabular}{l*{3}{c}r}
+		Test              & Posit &Float Hardware \\
+		\hline
+		Curva Logistica 				& 1 & $\approx1.5-1.8$    	\\
+		Esp. Approssimato  				& 1 & $\approx4.9-5.1$		\\
+		Sigmoide senza Esp.           	& 1 & $\approx1.4-1.6$		\\
+		\hline
+	\end{tabular}
+	\caption{Tempi di calcolo della sigmoide nei tre casi}
+\end{table}
+
 
 \newpage
 \section{Divisione e Moltiplicazione mediante regime}
@@ -319,6 +348,20 @@ Il test è stato svolto su un campione di 1 milione di elementi, sfruttando la f
 
 Dai dati emersi i Float risultano essere più veloci di $\approx 2-2.5$ volte rispetto ai Posit nelle divisioni, mentre nelle moltiplicazioni il divario aumenta fino a $\approx 3$ volte.\\
 Per quanto possa sembrare strano ad un primo impatto, un risultato del genere è del tutto normale, in quanto le divisioni e moltiplicazioni, per potenze del 2, sui Float risultano essere ancora più semplici, in quanto basta semplicemente incrementare (o decrementare) l'esponente, il che è ulteriormente facilitato dalla loro natura "statica".
+
+\begin{table}[ht]
+	\centering
+	\begin{tabular}{l*{3}{c}r}
+		Test              				& Float Hardware &Posit \\
+		\hline
+		Moltiplicazione 				& 1 & $\approx2.0-2.5$    	\\
+		Divisione		  				& 1 & $\approx3.0$		\\
+		\hline
+	\end{tabular}
+	\caption{Moltiplicazione e Divisione per potenze del 2}
+\end{table}
+
+
 
 \subsubsection{Codice}
 \begin{lstlisting}[language=C++]
@@ -403,8 +446,18 @@ Nel complesso i Posit si sono rivelati un'ottima alternativa alle soluzioni attu
 \newpage
 
 \section{Appendice}
+\subsection{Conversione Posit - Float}
 Due funzioni che meritano una menzione particolare sono quelle destinate ad effettuare la conversione da Posit 0 a Float e a Double. Esse non sono tuttora presenti nella libreria bfp\cite{libbfp}, e quindi ho dovuto implementarle per lo svolgimento dei vari test.\\ L'idea di base dietro la loro realizzazione, consiste nel fatto che con 0 bit di esponente, il regime non è nient'altro che l'esponente dei Float/Double, ad eccezione di una conversione da complemento a 2, a rappresentazione con bias. Di conseguenza il tutto si riduce ad estrapolare i vari campi, dinamici nei Posit, e convertirli nella dimensione fissa del formato di destinazione.
 
+\subsection{Moltiplicazione e Divisione mediante regime}
+
+Sebbene l'idea dietro questo metodo possa sembrare semplice e veloce, la sua implementazione richiede diversa logica. Nello specifico il caso che necessita di maggiori attenzioni, è quando il regime cambia di segno, ossia ne ho uno positivo, ad esempio +1, e si vuole dividere il numero per 8, ottenendo quindi come regime -2. Questo, per struttura stessa dei Posit comporta notevoli cambiamenti: variano il numero di bit occupati dal regime, nello specifico aumentano, ed inoltre i bit del regime passano da essere una sequenza di 1 terminati da 0, a 0 seguiti da un 1. 
+Nell'implementazione realizzata, il tutto è gestito eliminando il vecchio regime, mediante shift a sinistra, per poi creare ed inserire quello nuovo mediante shift a destra. Naturalmente il tutto è valido anche nel caso in cui si passi da un regime negativo ad uno positivo, mediante moltiplicazione.\\
+Infine bisogna anche considerare che nel caso in cui il Posit fosse negativo, prima di potervi estrarre regime o comunque svolgervi qualunque tipo di operazione, bisogna eseguirne il complemento e sommarvi uno, aggiungendo un ulteriore overhead.\footnote{Per poter inserire 0 o 1 in accordo al segno del regime, viene sfruttato un signed integer, nel quale se viene effettuato uno shift a destra, avviene una ricopiatura del primo bit}
+
+\subsection{Approssimazione esponenziale su Posit}
+
+\subsection{Perché SoftFloat?}
 \newpage
 %	\nocite{articolo1}
 	
